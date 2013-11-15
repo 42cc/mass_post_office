@@ -100,8 +100,8 @@ class TestModels(TestCase):
         emails = [e for e in generator]
         self.assertEqual(len(emails), 0)
 
-        SubscriptionSettings.objects.create(user=user1, subcribed=True)
-        SubscriptionSettings.objects.create(user=user2, subcribed=True)
+        SubscriptionSettings.objects.create(user=user1, subscribed=True)
+        SubscriptionSettings.objects.create(user=user2, subscribed=True)
 
         generator = ml.get_emails_generator()
         emails = [e for e in generator]
