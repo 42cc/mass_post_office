@@ -57,7 +57,7 @@ class MailingList(models.Model):
         return (
             user_qs
             .filter(is_active=True, email__isnull=False,
-                    subscriptionsettings__subscribed=True)
+                    subscriptionsettings__subscribed=self.user_should_be_agree)
             .exclude(email='').distinct()
         )
 
