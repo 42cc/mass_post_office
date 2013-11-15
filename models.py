@@ -54,7 +54,7 @@ class MailingList(models.Model):
                 for i in simplejson.loads(self.or_list):
                     q |= Q(**i)
             user_qs = User.objects.filter(q)
-        if self.self.user_should_be_agree:
+        if self.user_should_be_agree:
             user_qs = user_qs.filter(subscriptionsettings__subscribed=True)
         return (
             user_qs
