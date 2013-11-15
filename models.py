@@ -45,16 +45,21 @@ class MailingList(models.Model):
 
     def get_users_queryset(self):
         if self.all_users:
-            return User.objects.filter(
-                is_active=True, email__isnull=False).exclude(email='')
-        q = Q()
-        if self.additional_users.exists():
-            q |= Q(id__in=self.additional_users.values_list('id', flat=True))
-        if self.or_list:
-            for i in simplejson.loads(self.or_list):
-                q |= Q(**i)
-        q &= Q(is_active=True, email__isnull=False)
-        return User.objects.filter(q).exclude(email='').distinct()
+            user_qs = User.objects.all()
+        else:
+            q = Q()
+            if self.additional_users.exists():
+                q |= Q(id__in=self.additional_users.values_list('id', flat=True))
+            if self.or_list:
+                for i in simplejson.loads(self.or_list):
+                    q |= Q(**i)
+            user_qs = User.objects.filter(q)
+        return (
+            user_qs
+            .filter(is_active=True, email__isnull=False,
+                    subscriptionsettings__subscribed=True)
+            .exclude(email='').distinct()
+        )
 
     def get_emails_generator(self):
         for user in self.get_users_queryset():

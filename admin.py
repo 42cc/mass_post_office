@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 
-from .models import MailingList
+from .models import MailingList, SubscriptionSettings
 
 
 class MailingListAdmin(admin.ModelAdmin):
@@ -11,3 +11,5 @@ class MailingListAdmin(admin.ModelAdmin):
 
 
 admin.site.register(MailingList, MailingListAdmin)
+
+admin.site.register(SubscriptionSettings)
