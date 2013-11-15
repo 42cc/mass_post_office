@@ -71,14 +71,14 @@ class TestModels(TestCase):
         # all
         ml = MailingList(
             name='Some name',
-            user_should_be_agree=True,
+            user_should_be_agree=False,
             all_users=True)
         ml.save()
         self.assertEqual(ml.get_users_queryset().count(), 3)
         # or list
         ml = MailingList(
             name='Some name',
-            user_should_be_agree=True,
+            user_should_be_agree=False,
             all_users=False,
             or_list='[{"id": %d}]' % user2.id)
         ml.save()
@@ -96,6 +96,15 @@ class TestModels(TestCase):
             user_should_be_agree=True,
             all_users=True)
         ml.save()
+        generator = ml.get_emails_generator()
+        emails = [e for e in generator]
+        self.assertEqual(len(emails), 0)
+
+        user1.subscriptionsettings.subcribed = True
+        user1.subscriptionsettings.save()
+        user2.subscriptionsettings.subcribed = True
+        user2.subscriptionsettings.save()
+
         generator = ml.get_emails_generator()
         emails = [e for e in generator]
         self.assertEqual(len(emails), 2)
