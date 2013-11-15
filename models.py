@@ -1,9 +1,15 @@
+from collections import namedtuple
+
 from django.db import models
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils import simplejson
+from django.conf import settings
+
+from post_office.models import EmailTemplate, Email
+from post_office.mail import from_template
 
 
 class SubscriptionSettings(models.Model):
@@ -12,6 +18,33 @@ class SubscriptionSettings(models.Model):
 
     def __unicode__(self):
         return '%s - %s' % (self.user.username, str(self.subscribed))
+
+class MassEmail(models.Model):
+    PRIORITY = namedtuple('PRIORITY', 'low medium high now')._make(range(4))
+    PRIORITY_CHOICES = [(PRIORITY.low, 'low'), (PRIORITY.medium, 'medium'),
+                        (PRIORITY.high, 'high'), (PRIORITY.now, 'now')]
+
+    mailing_list = models.ForeignKey(MailingList, verbose_name='Mailing List')
+    template = models.ForeignKey(EmailTemplate, 
+        verbose_name='Template')
+    emails = models.ManyToManyField(Email, verbose_name='Emails', 
+        null=True, blank=True)
+    scheduled_time = models.DateTimeField(blank=True, null=True, db_index=True)
+    priority = models.PositiveSmallIntegerField(choices=PRIORITY_CHOICES, 
+        blank=True, null=True, db_index=True)
+
+    def save(self, *args, **kwargs):
+        super(MassEmail, self).save(*args, **kwargs)
+        for user in self.mailing_list.get_users_queryset:
+            email = from_template(
+                settings.DEFAULT_FROM_EMAIL, 
+                to=user.email, 
+                template=self.template, 
+                context={'user': user}, 
+                scheduled_time=self.scheduled_time,
+                priority=self.priority)
+            email.save()
+            self.emails.add(email)
 
 
 class MailingList(models.Model):
