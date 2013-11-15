@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils import simplejson
+from django.utils.translation import ugettext_lazy as _
 
 
 class SubscriptionSettings(models.Model):
@@ -18,12 +19,12 @@ class SubscriptionSettings(models.Model):
 class MailingList(models.Model):
     name = models.CharField(verbose_name='List name', max_length=255)
     user_should_be_agree = models.BooleanField(
-        verbose_name='User should be agree', default=True)
+        verbose_name=_('User should be agreed to receive mails'), default=True)
     all_users = models.BooleanField(
-        verbose_name='All users', default=False)
+        verbose_name=_('All users'), default=False)
     or_list = models.TextField(verbose_name='json OR-list', default='')
     additional_users = models.ManyToManyField(
-        User, verbose_name='Additional users', null=True)
+        User, verbose_name=_('Additional users'), null=True)
 
     def __unicode__(self):
         return self.name
