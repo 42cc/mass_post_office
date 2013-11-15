@@ -53,7 +53,7 @@ class MailingList(models.Model):
             for i in simplejson.loads(self.or_list):
                 q |= Q(**i)
         q &= Q(is_active=True, email__isnull=False)
-        return User.objects.filter(q).exclude(email='')
+        return User.objects.filter(q).exclude(email='').distinct()
 
     def get_emails_generator(self):
         for user in self.get_users_queryset():
