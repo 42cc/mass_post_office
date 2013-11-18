@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from ..models import MailingList
+from ..models import MailingList, SubscriptionSettings
 
 from vsekursi.studentoffice.tests.factories import UserFactory
 
@@ -71,14 +71,14 @@ class TestModels(TestCase):
         # all
         ml = MailingList(
             name='Some name',
-            user_should_be_agree=True,
+            user_should_be_agree=False,
             all_users=True)
         ml.save()
         self.assertEqual(ml.get_users_queryset().count(), 3)
         # or list
         ml = MailingList(
             name='Some name',
-            user_should_be_agree=True,
+            user_should_be_agree=False,
             all_users=False,
             or_list='[{"id": %d}]' % user2.id)
         ml.save()
@@ -96,6 +96,13 @@ class TestModels(TestCase):
             user_should_be_agree=True,
             all_users=True)
         ml.save()
+        generator = ml.get_emails_generator()
+        emails = [e for e in generator]
+        self.assertEqual(len(emails), 0)
+
+        SubscriptionSettings.objects.create(user=user1, subscribed=True)
+        SubscriptionSettings.objects.create(user=user2, subscribed=True)
+
         generator = ml.get_emails_generator()
         emails = [e for e in generator]
         self.assertEqual(len(emails), 2)
