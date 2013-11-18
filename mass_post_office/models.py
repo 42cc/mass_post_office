@@ -79,12 +79,15 @@ class MassEmail(models.Model):
                         (PRIORITY.high, 'high'), (PRIORITY.now, 'now')]
 
     mailing_list = models.ForeignKey(MailingList, verbose_name='Mailing List')
-    template = models.ForeignKey(EmailTemplate,
+    template = models.ForeignKey(
+        EmailTemplate,
         verbose_name='Template')
-    emails = models.ManyToManyField(Email, verbose_name='Emails',
+    emails = models.ManyToManyField(
+        Email, verbose_name='Emails',
         null=True, blank=True)
     scheduled_time = models.DateTimeField(blank=True, null=True, db_index=True)
-    priority = models.PositiveSmallIntegerField(choices=PRIORITY_CHOICES,
+    priority = models.PositiveSmallIntegerField(
+        choices=PRIORITY_CHOICES,
         blank=True, null=True, db_index=True)
 
     def save(self, *args, **kwargs):
@@ -92,7 +95,7 @@ class MassEmail(models.Model):
         for user in self.mailing_list.get_users_queryset():
             email = from_template(
                 settings.DEFAULT_FROM_EMAIL,
-                to=user.email,
+                recipient=user.email,
                 template=self.template,
                 context={'user': user},
                 scheduled_time=self.scheduled_time,
@@ -106,4 +109,5 @@ class MassEmail(models.Model):
         for email in self.emails.exclude(status=None):
             row[email.status] += 1
         return {'sent': row[0], 'failed': row[1], 'queued': row[2]}
+
 

@@ -14,25 +14,15 @@ class MailingListAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-class StatusField(widgets.Widget):
-    def render(self, name, value, attrs=None):
-        import ipdb; ipdb.set_trace()
-        if value is None:
-            value = { 'sent': 0, 'failed': 0, 'queued': 0}
-        output = u"sent: %s, failed: %s, queued: %s" % (
-            value['sent'], value['failed'], value['queued'])
-        return output
-
-
-class MassEmailAdminForm(forms.ModelForm):
-    status = forms.CharField(widget=StatusField, required=False)
-    class Meta:
-        exclude = ['emails']
+def status(obj):
+    return u"%(sent) %(failed) %(queued)".format(**obj.status)
+status.short_description = 'Email queue status'
 
 
 class MassEmailAdmin(admin.ModelAdmin):
     list_display = ('mailing_list', 'template', 'scheduled_time')
-    form = MassEmailAdminForm
+    readonly_fields = ('status', )
+    exclude = ('emails', )
 
 
 admin.site.register(MailingList, MailingListAdmin)
