@@ -89,7 +89,7 @@ class MassEmail(models.Model):
 
     def save(self, *args, **kwargs):
         super(MassEmail, self).save(*args, **kwargs)
-        for user in self.mailing_list.get_users_queryset:
+        for user in self.mailing_list.get_users_queryset():
             email = from_template(
                 settings.DEFAULT_FROM_EMAIL,
                 to=user.email,
@@ -99,3 +99,11 @@ class MassEmail(models.Model):
                 priority=self.priority)
             email.save()
             self.emails.add(email)
+
+    @property
+    def status(self):
+        row = [0]*3
+        for email in self.emails.exclude(status=None):
+            row[email.status] += 1
+        return {'sent': row[0], 'failed': row[1], 'queued': row[2]}
+
