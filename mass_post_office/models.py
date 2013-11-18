@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from collections import namedtuple
+from model_utils import Choices
 
 from django.db import models
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -10,7 +9,7 @@ from django.utils import simplejson
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
-from post_office.models import EmailTemplate, Email
+from post_office.models import EmailTemplate, Email, STATUS
 from post_office.mail import from_template
 
 
@@ -74,9 +73,12 @@ class MailingList(models.Model):
 
 
 class MassEmail(models.Model):
-    PRIORITY = namedtuple('PRIORITY', 'low medium high now')._make(range(4))
-    PRIORITY_CHOICES = [(PRIORITY.low, 'low'), (PRIORITY.medium, 'medium'),
-                        (PRIORITY.high, 'high'), (PRIORITY.now, 'now')]
+    PRIORITY_CHOICES = Choices(
+        (0, 'low', _('low')),
+        (1, 'medium', _('medium')),
+        (2, 'high', _('high')),
+        (3, 'now', _('now'))
+        )
 
     mailing_list = models.ForeignKey(MailingList, verbose_name='Mailing List')
     template = models.ForeignKey(
@@ -105,9 +107,8 @@ class MassEmail(models.Model):
 
     @property
     def status(self):
-        row = [0]*3
-        for email in self.emails.exclude(status=None):
-            row[email.status] += 1
-        return {'sent': row[0], 'failed': row[1], 'queued': row[2]}
-
+        result = {}
+        for status in STATUS._fields:
+            result[status] = self.emails.filter(status=getattr(STATUS, status)).count()
+        return result
 

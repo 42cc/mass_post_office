@@ -14,14 +14,14 @@ class MailingListAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-def status(obj):
-    return u"%(sent) %(failed) %(queued)".format(**obj.status)
-status.short_description = 'Email queue status'
+def status_str(obj):
+    return u"sent: {sent}, failed: {failed}, queued: {queued}".format(**obj.status)
+status_str.short_description = 'Email queue status'
 
 
 class MassEmailAdmin(admin.ModelAdmin):
     list_display = ('mailing_list', 'template', 'scheduled_time')
-    readonly_fields = ('status', )
+    readonly_fields = (status_str, )
     exclude = ('emails', )
 
 
