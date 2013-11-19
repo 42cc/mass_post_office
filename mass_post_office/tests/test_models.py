@@ -1,11 +1,13 @@
+import datetime
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from ..models import MailingList, SubscriptionSettings
+from ..models import MailingList, SubscriptionSettings, MassEmail
 
 from vsekursi.studentoffice.tests.factories import UserFactory
 
+from post_office.models import EmailTemplate, Email
 
 class TestModels(TestCase):
 
@@ -107,3 +109,39 @@ class TestModels(TestCase):
         emails = [e for e in generator]
         self.assertEqual(len(emails), 2)
         self.assertIn(user1.email, emails)
+
+    def test_mass_emails(self):
+        priority=2
+        user1 = UserFactory(is_active=True)
+        self.assertTrue(len(user1.first_name))
+        self.assertTrue(len(user1.last_name))
+        ml = MailingList(
+            name='Some name',
+            user_should_be_agree=False,
+            all_users=True)
+        ml.save()
+        email_template = EmailTemplate.objects.create(name='welcome',
+            subject='Welcome!', content='Hi {{ user.first_name }} {{ user.last_name }}!')
+        today = datetime.datetime.today()
+        from django.db.models import Q
+        mass_emails_qs = Q(scheduled_time=today, priority=priority, 
+            mailing_list=ml, template=email_template)
+        mass_emails = MassEmail.objects.filter(mass_emails_qs)
+        self.assertEqual(len(mass_emails), 0)
+        me = MassEmail(
+            scheduled_time=today,
+            priority=priority,
+            mailing_list=ml,
+            template=email_template
+            )
+        me.save()
+        mass_emails = MassEmail.objects.filter(mass_emails_qs)
+        self.assertEqual(len(mass_emails), 1)
+        emails = me.emails.all()
+        self.assertEqual(len(emails), 1)
+        email = emails[0]
+        self.assertEqual(user1.email, email.to)
+        self.assertIn(user1.first_name, email.message)
+        self.assertIn(user1.last_name, email.message)
+        self.assertEqual(today, email.scheduled_time)
+        self.assertEqual(priority, email.priority)
