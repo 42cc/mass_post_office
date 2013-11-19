@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='mass-post-office',
-    version='0.0.1',
+    name='django-mass-post-office',
+    version='0.0.4',
     description="Mass Post Office",
     classifiers=[
         "Programming Language :: Python",
@@ -11,11 +11,11 @@ setup(
         "Environment :: Web Environment",
     ],
     keywords='django, post-office, mass-post-office',
-    author='Yaroslav Klyuyev (imposeren)',
-    author_email='imposeren@gmail.com',
+    author='42coffeecups.com',
+    author_email='contact@42cc.co',
     url='https://github.com/42cc/mass_post_office',
     packages=find_packages(),
-    install_requires=['django-post-office'],
+    install_requires=['django-post-office==0.6.0'],
     include_package_data=True,
     zip_safe=False,
 )
