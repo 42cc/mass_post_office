@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 
-from .models import MailingList, SubscriptionSettings
+from .models import MailingList, SubscriptionSettings, MassEmail
 
 
 class MailingListAdmin(admin.ModelAdmin):
@@ -10,6 +10,17 @@ class MailingListAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-admin.site.register(MailingList, MailingListAdmin)
+def status_str(obj):
+    return u"sent: {sent}, failed: {failed}, queued: {queued}".format(**obj.status)
+status_str.short_description = 'Email queue status'
 
+
+class MassEmailAdmin(admin.ModelAdmin):
+    list_display = ('mailing_list', 'template', 'scheduled_time')
+    readonly_fields = (status_str, )
+    exclude = ('emails', )
+
+
+admin.site.register(MailingList, MailingListAdmin)
 admin.site.register(SubscriptionSettings)
+admin.site.register(MassEmail, MassEmailAdmin)

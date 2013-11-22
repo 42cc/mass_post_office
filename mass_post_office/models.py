@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
-from django.db import models
+from model_utils import Choices
 
+from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils import simplejson
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
+
+from post_office.models import EmailTemplate, Email, STATUS
+from post_office.mail import from_template
 
 
 class SubscriptionSettings(models.Model):
@@ -65,3 +70,44 @@ class MailingList(models.Model):
     def get_emails_generator(self):
         for user in self.get_users_queryset():
             yield user.email
+
+
+class MassEmail(models.Model):
+    PRIORITY_CHOICES = Choices(
+        (0, 'low', _('low')),
+        (1, 'medium', _('medium')),
+        (2, 'high', _('high')),
+        (3, 'now', _('now'))
+        )
+
+    mailing_list = models.ForeignKey(MailingList, verbose_name='Mailing List')
+    template = models.ForeignKey(
+        EmailTemplate,
+        verbose_name='Template')
+    emails = models.ManyToManyField(
+        Email, verbose_name='Emails',
+        null=True, blank=True)
+    scheduled_time = models.DateTimeField(blank=True, null=True, db_index=True)
+    priority = models.PositiveSmallIntegerField(
+        choices=PRIORITY_CHOICES,
+        blank=True, null=True, db_index=True)
+
+    def save(self, *args, **kwargs):
+        super(MassEmail, self).save(*args, **kwargs)
+        for user in self.mailing_list.get_users_queryset():
+            email = from_template(
+                settings.DEFAULT_FROM_EMAIL,
+                recipient=user.email,
+                template=self.template,
+                context={'user': user},
+                scheduled_time=self.scheduled_time,
+                priority=self.priority)
+            email.save()
+            self.emails.add(email)
+
+    @property
+    def status(self):
+        result = {}
+        for status in STATUS._fields:
+            result[status] = self.emails.filter(status=getattr(STATUS, status)).count()
+        return result        

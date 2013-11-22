@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block head %}
+   <title>Mass Post Office</title>
+   <link rel="stylesheet" type="text/css" href="">
+{% endblock head%}
+{% block content %}
+<form method="post" id="unsubscribe-form">
+{% csrf_token %}
+<table id="subscription">
+	<tr>
+		<td>You are going to unsubscribe your email subscriptions for <a href="mailto:{{user.email}}">{{user.email}}</a></td>
+		<td id="submit-line">
+			<button onclick="window.location='" + {{ cancel_url }} +"'; return false;">Cancel</button>
+			<input type="submit" name="is_unsubscribed" value="Apply" id="submit-button"/>
+	</tr>
+	<tr>
+	</tr>
+</table>
+</form>
+{% endblock content %}
+

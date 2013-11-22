@@ -1,0 +1,6 @@
+{% load subscription %}
+<html>
+Hello {{user.first_name}},
+
+Please <a href="{% unsubscribe_link user %}">click here</a> to unsubscribe your email subscriptions for <a href="mailto:{{ user.email }}">{{ user.email }}</a>.
+</html>

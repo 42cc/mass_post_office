@@ -1,0 +1,3 @@
+Hello {{user.first_name}},
+
+You successfuly unsubscribed your subscription for {{user.email}}.
