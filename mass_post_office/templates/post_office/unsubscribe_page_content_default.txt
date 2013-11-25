@@ -1,4 +1,4 @@
 {% load subscription %}
 Hello {{user.first_name}},
 
-Visit {% unsubscribe_link user %} link to unsubscribe your email subscriptions for {{ user.email }}.
+Visit {% unsubscribe_link user %} link to unsubscribe from mass emails for {{ user.email }}.

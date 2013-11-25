@@ -1,5 +1,5 @@
 <html>
 Hello {{user.first_name}},
 
-You successfuly unsubscribed your subscription for <a href="mailto:{{user.email}}">{{user.email}}</a>.
+You successfuly unsubscribed from mass emails for <a href="mailto:{{user.email}}">{{user.email}}</a>.
 </html>

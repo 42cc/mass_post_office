@@ -30,7 +30,7 @@ class UnsubscribeLink(template.Node):
         try:
             url = reverse('mass_post_office:unsubscribe', 
                 kwargs={'hashed':hashed, 'data':data})
-        except:
+        except Exception:
             return u'http://%s' % current_site.domain
         # TODO https:// prefix
         return ''.join(['http://', current_site.domain, url])

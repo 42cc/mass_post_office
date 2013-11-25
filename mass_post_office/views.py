@@ -17,19 +17,19 @@ def unsubscribe(request, hashed, data):
     except Exception:
         raise Http404
     try:
-    	subscription = SubscriptionSettings.objects.get(
-    		user__username=username,
-    		user__email=email)
-    except SubscriptionSettings.DoesNotExist, e:
-    	raise Http404
+        subscription = SubscriptionSettings.objects.get(
+            user__username=username,
+            user__email=email)
+    except SubscriptionSettings.DoesNotExist as e:
+        raise Http404
     if not request.POST:
-    	context = {
-    		'user': subscription.user,
-    		'cancel_url': '/'
-    	}
+        context = {
+            'user': subscription.user,
+            'cancel_url': '/'
+        }
         return render(request, 'mass_post_office/unsubscribe.html', context)
     if not 'is_unsubscribed' in request.POST:
-    	return redirect('/')
+        return redirect('/')
     subscription.subscribed = False
     subscription.save()
     try:
@@ -38,9 +38,9 @@ def unsubscribe(request, hashed, data):
             subscription.user.email,
             template=u'post_office/canceled_subscription',
             context={
-                 'user': subscription.user
+                'user': subscription.user
             })
-    except EmailTemplate.DoesNotExist, e:
+    except EmailTemplate.DoesNotExist as e:
         # we should process undefined EmailTemplate here
         # try to check 'post_migrate'
         pass

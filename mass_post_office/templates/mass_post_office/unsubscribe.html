@@ -9,10 +9,10 @@
 {% csrf_token %}
 <table id="subscription">
 	<tr>
-		<td>You are going to unsubscribe your email subscriptions for <a href="mailto:{{user.email}}">{{user.email}}</a></td>
+		<td>You are going to turn off your email subscriptions for <a href="mailto:{{user.email}}">{{user.email}}</a></td>
 		<td id="submit-line">
 			<button onclick="window.location='" + {{ cancel_url }} +"'; return false;">Cancel</button>
-			<input type="submit" name="is_unsubscribed" value="Apply" id="submit-button"/>
+			<input type="submit" name="is_unsubscribed" value="Unsubscribe" id="submit-button"/>
 	</tr>
 	<tr>
 	</tr>
