@@ -37,7 +37,6 @@ class MassEmailAdmin(admin.ModelAdmin):
         status_str, 'mailing_list', 'template', template_link, 'scheduled_time', 'priority'
     )
 
-
 admin.site.register(MailingList, MailingListAdmin)
 admin.site.register(SubscriptionSettings)
 admin.site.register(MassEmail, MassEmailAdmin)

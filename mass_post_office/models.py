@@ -114,5 +114,5 @@ class MassEmail(models.Model):
         result = {}
         for status in STATUS._fields:
             result[status] = self.emails.filter(status=getattr(STATUS, status)).count()
-        return result
 
+        return result

@@ -1,0 +1,3 @@
+Hello {{user.first_name}},
+
+You successfuly unsubscribed from mass emails for {{user.email}}.
