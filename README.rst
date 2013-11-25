@@ -16,15 +16,15 @@ Dependencies
 Installation
 ============
 
-* Currently no install from PyPI is available. so install with pip from github::
+* Currently no install from PyPI is available. so install with pip from github:
 
-.. code-block:: bash
+  .. code-block:: bash
 
 	pip install git+https://github.com/ui/django-post_office.git
 
 * Add ``post_office`` and ``mass_post_office to your INSTALLED_APPS in django's ``settings.py``:
 
-.. code-block:: python
+  .. code-block:: python
 
     INSTALLED_APPS = (
         # other apps
