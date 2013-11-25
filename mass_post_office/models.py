@@ -83,6 +83,7 @@ class MassEmail(models.Model):
     mailing_list = models.ForeignKey(MailingList, verbose_name='Mailing List')
     template = models.ForeignKey(
         EmailTemplate,
+        help_text='Template with access to `{{ user }}` variable',
         verbose_name='Template')
     emails = models.ManyToManyField(
         Email, verbose_name='Emails',
@@ -91,6 +92,9 @@ class MassEmail(models.Model):
     priority = models.PositiveSmallIntegerField(
         choices=PRIORITY_CHOICES,
         blank=True, null=True, db_index=True)
+
+    def __unicode__(self):
+        return u'Mails for {self.mailing_list} with template {self.template}'.format(self=self)
 
     def save(self, *args, **kwargs):
         super(MassEmail, self).save(*args, **kwargs)
@@ -110,4 +114,5 @@ class MassEmail(models.Model):
         result = {}
         for status in STATUS._fields:
             result[status] = self.emails.filter(status=getattr(STATUS, status)).count()
-        return result        
+
+        return result

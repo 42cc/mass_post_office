@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 from django.core.exceptions import ValidationError
 from django.test import TestCase
@@ -7,6 +8,7 @@ from ..models import MailingList, SubscriptionSettings, MassEmail
 from .factories import UserFactory
 
 from post_office.models import EmailTemplate
+
 
 class TestModels(TestCase):
 
@@ -110,7 +112,7 @@ class TestModels(TestCase):
         self.assertIn(user1.email, emails)
 
     def test_mass_emails(self):
-        priority=2
+        priority = 2
         user1 = UserFactory(is_active=True)
         self.assertTrue(len(user1.first_name))
         self.assertTrue(len(user1.last_name))
@@ -119,11 +121,14 @@ class TestModels(TestCase):
             user_should_be_agree=False,
             all_users=True)
         ml.save()
-        email_template = EmailTemplate.objects.create(name='welcome',
-            subject='Welcome!', content='Hi {{ user.first_name }} {{ user.last_name }}!')
+        email_template = EmailTemplate.objects.create(
+            name='welcome',
+            subject='Welcome!',
+            content='Hi {{ user.first_name }} {{ user.last_name }}!')
         today = datetime.datetime.today()
         from django.db.models import Q
-        mass_emails_qs = Q(scheduled_time=today, priority=priority, 
+        mass_emails_qs = Q(
+            scheduled_time=today, priority=priority,
             mailing_list=ml, template=email_template)
         mass_emails = MassEmail.objects.filter(mass_emails_qs)
         self.assertEqual(len(mass_emails), 0)
