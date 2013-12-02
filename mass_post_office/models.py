@@ -20,6 +20,9 @@ class SubscriptionSettings(models.Model):
     def __unicode__(self):
         return '%s - %s' % (self.user.username, str(self.subscribed))
 
+    class Meta:
+        verbose_name_plural = "Subscription Settings"
+
 
 class MailingList(models.Model):
     name = models.CharField(verbose_name='List name', max_length=255)
