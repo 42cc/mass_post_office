@@ -4,6 +4,17 @@ from south.db import db
 from south.v2 import DataMigration
 from django.db import models
 
+try:
+    from django.contrib.auth import get_user_model
+except ImportError: # django < 1.5
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
+
+user_orm_label = '%s.%s' % (User._meta.app_label, User._meta.object_name)
+user_model_label = '%s.%s' % (User._meta.app_label, User._meta.module_name)
+user_ptr_name = '%s_ptr' % User._meta.object_name.lower()
+
 class Migration(DataMigration):
 
     depends_on = (
@@ -44,8 +55,8 @@ class Migration(DataMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
-        u'auth.user': {
-            'Meta': {'object_name': 'User'},
+        user_model_label: {
+            'Meta': {'object_name': User.__name__, 'db_table': "'%s'" % User._meta.db_table},
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
@@ -72,14 +83,14 @@ class Migration(DataMigration):
             'end_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'start_date': ('django.db.models.fields.DateField', [], {}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['%s']" % user_orm_label})
         },
         'externalsite.institutionrepresentativeuser': {
             'Meta': {'unique_together': "(('user', 'institution'),)", 'object_name': 'InstitutionRepresentativeUser'},
             'confirmed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'institution': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'representatives'", 'to': u"orm['studentoffice.Institution']"}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'institutions_representative'", 'to': u"orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'institutions_representative'", 'to': "orm['%s']" % user_orm_label})
         },
         'externalsite.landingpage': {
             'Meta': {'object_name': 'LandingPage'},
@@ -137,12 +148,12 @@ class Migration(DataMigration):
         'externalsite.regularuser': {
             'Meta': {'object_name': 'RegularUser'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'regular'", 'unique': 'True', 'to': u"orm['auth.User']"})
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'regular'", 'unique': 'True', 'to': "orm['%s']" % user_orm_label})
         },
         'externalsite.teacheruser': {
             'Meta': {'object_name': 'TeacherUser'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'teacher'", 'unique': 'True', 'to': u"orm['auth.User']"})
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'teacher'", 'unique': 'True', 'to': "orm['%s']" % user_orm_label})
         },
         'externalsite.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
@@ -154,13 +165,13 @@ class Migration(DataMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key_expires': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 11, 16, 0, 0)'}),
             'phone_number': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']", 'unique': 'True'})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['%s']" % user_orm_label, 'unique': 'True'})
         },
         u'mass_post_office.subscriptionsettings': {
             'Meta': {'object_name': 'SubscriptionSettings'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'subscribed': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['%s']" % user_orm_label})
         },
         u'studentoffice.city': {
             'Meta': {'ordering': "['priority', 'name']", 'object_name': 'City'},

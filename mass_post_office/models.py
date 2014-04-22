@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 from model_utils import Choices
 
-from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.db.models import Q
 from django.utils import simplejson
-from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
+from django.utils.translation import ugettext_lazy as
 
 from post_office.models import EmailTemplate, Email, STATUS
 from post_office.mail import from_template
 
+USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
 
 class SubscriptionSettings(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(USER_MODEL)
     subscribed = models.BooleanField(default=True)
 
     def __unicode__(self):
@@ -32,7 +34,7 @@ class MailingList(models.Model):
         verbose_name=_('All users'), default=False)
     or_list = models.TextField(verbose_name='json OR-list', default='')
     additional_users = models.ManyToManyField(
-        User, verbose_name=_('Additional users'), null=True)
+        USER_MODEL, verbose_name=_('Additional users'), null=True)
 
     def __unicode__(self):
         return self.name
@@ -53,7 +55,7 @@ class MailingList(models.Model):
 
     def get_users_queryset(self):
         if self.all_users:
-            user_qs = User.objects.all()
+            user_qs = get_user_model().objects.all()
         else:
             q = Q()
             if self.additional_users.exists():
@@ -61,7 +63,7 @@ class MailingList(models.Model):
             if self.or_list:
                 for i in simplejson.loads(self.or_list):
                     q |= Q(**i)
-            user_qs = User.objects.filter(q)
+            user_qs = get_user_model().objects.filter(q)
         if self.user_should_be_agree:
             user_qs = user_qs.filter(subscriptionsettings__subscribed=True)
         return (
