@@ -17,14 +17,6 @@ user_ptr_name = '%s_ptr' % User._meta.object_name.lower()
 
 class Migration(DataMigration):
 
-    depends_on = (
-        ("externalsite", "0020_auto__add_field_proposalsearchconstructor_priority"),
-    )
-
-    needed_by = (
-        ("externalsite", "0021_auto__del_field_userprofile_distribution"),
-    )
-
     def forwards(self, orm):
         for userprofile in orm['externalsite.UserProfile'].objects.all():
             orm.SubscriptionSettings.objects.create(
