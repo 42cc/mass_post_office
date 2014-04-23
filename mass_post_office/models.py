@@ -121,3 +121,19 @@ class MassEmail(models.Model):
             result[status] = self.emails.filter(status=getattr(STATUS, status)).count()
 
         return result
+
+
+# signal processing
+from django.db.models import signals
+
+# by default, auto-add SubscriptionSettings objects for new Users
+if getattr(settings, 'MASS_POST_OFFICE_SUBSCRIPTION_AUTO_ADD', True):
+    def auto_add(sender, **kwargs):
+        if sender == get_user_model() and kwargs['created']:
+            user = kwargs.get('instance')
+            SubscriptionSettings.objects.create(user=user)
+
+    # TODO: try to only connect this to the User model. We can't use
+    #       get_user_model() here - results in import loop.
+
+    signals.post_save.connect(auto_add)
