@@ -17,7 +17,7 @@ USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 class SubscriptionSettings(models.Model):
     user = models.OneToOneField(USER_MODEL)
-    subscribed = models.BooleanField(default=True)
+    subscribed = models.BooleanField(default=False)
 
     def __unicode__(self):
         return '%s - %s' % (self.user.username, str(self.subscribed))
