@@ -14,8 +14,8 @@ else:
 
 user_orm_label = '%s.%s' % (User._meta.app_label, User._meta.object_name)
 user_model_label = '%s.%s' % (User._meta.app_label, User._meta.module_name)
-user_ptr_name = '%s_ptr' % User._meta.object_name.lower()
-user_id_name = '%s_id' % User._meta.object_name
+user_ptr_name = '%s_ptr' % User._meta.module_name
+user_id_name = '%s_id' % User._meta.module_name
 
 class Migration(SchemaMigration):
 
@@ -34,7 +34,7 @@ class Migration(SchemaMigration):
         db.create_table(u'mass_post_office_mailinglist_additional_users', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('mailinglist', models.ForeignKey(orm[u'mass_post_office.mailinglist'], null=False)),
-            (User._meta.object_name, models.ForeignKey(orm[user_model_label], null=False))
+            (User._meta.module_name, models.ForeignKey(orm[user_model_label], null=False))
         ))
         db.create_unique(u'mass_post_office_mailinglist_additional_users', ['mailinglist_id', user_id_name])
 
